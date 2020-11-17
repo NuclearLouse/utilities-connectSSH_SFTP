@@ -24,7 +24,7 @@ type Credentials struct {
 
 // SSH ...
 type SSH struct {
-	client *ssh.Client
+	Client *ssh.Client
 }
 
 // NewSSH ...
@@ -79,12 +79,12 @@ func NewSSH(c *Credentials) (*SSH, error) {
 		return nil, err
 	}
 
-	return &SSH{client: client}, nil
+	return &SSH{Client: client}, nil
 }
 
 // ClientSFTP ...
 func (s *SSH) ClientSFTP() (*sftp.Client, error) {
-	client, err := sftp.NewClient(s.client)
+	client, err := sftp.NewClient(s.Client)
 	if err != nil {
 		return nil, err
 	}
@@ -94,7 +94,7 @@ func (s *SSH) ClientSFTP() (*sftp.Client, error) {
 
 // NewSession ...
 func (s *SSH) NewSession() (*ssh.Session, error) {
-	session, err := s.client.NewSession()
+	session, err := s.Client.NewSession()
 	if err != nil {
 		return nil, err
 	}
