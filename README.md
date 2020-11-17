@@ -26,7 +26,7 @@ func main() {
 	if err != nil {
 		log.Fatalln("ssh client:", err)
 	}
-	defer connect.client.Close()
+	defer connect.Client.Close()
 
 	client, err := connect.ClientSFTP()
 	if err != nil {
