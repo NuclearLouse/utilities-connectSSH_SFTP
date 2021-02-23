@@ -17,8 +17,24 @@ type SSH interface {
 	NewSession() (*ssh.Session, error)
 }
 
-// NewClient ...
-func NewClient(c *Credentials) (SSH, error) {
+// Credentials ...AuthMethod : "key", "password", "keyboard". Port default ":22"
+type Credentials struct {
+	Host           string
+	Port           string
+	AuthMethod     string
+	User           string
+	Password       string
+	PrivateKeyFile string
+	TimeOut        int64
+}
+
+// SSH ...
+type sshClient struct {
+	client *ssh.Client
+}
+
+// New ...
+func New(c *Credentials) (SSH, error) {
 	cfg := &ssh.ClientConfig{
 
 		User:            c.User,
@@ -70,25 +86,6 @@ func NewClient(c *Credentials) (SSH, error) {
 
 	return &sshClient{client}, nil
 }
-
-
-
-// Credentials ...AuthMethod : "key", "password", "keyboard". Port default ":22"
-type Credentials struct {
-	Host           string
-	Port           string
-	AuthMethod     string
-	User           string
-	Password       string
-	PrivateKeyFile string
-	TimeOut        int64
-}
-
-// SSH ...
-type sshClient struct {
-	client *ssh.Client
-}
-
 
 // ClientSFTP ...
 func (s *sshClient) ClientSFTP() (*sftp.Client, error) {
