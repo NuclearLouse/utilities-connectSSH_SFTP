@@ -11,25 +11,14 @@ import (
 	"golang.org/x/crypto/ssh"
 )
 
-// Credentials ...AuthMethod : "key", "password", "keyboard". Port default ":22"
-type Credentials struct {
-	Host           string
-	Port           string
-	AuthMethod     string
-	User           string
-	Password       string
-	PrivateKeyFile string
-	TimeOut        int64
-}
-
 // SSH ...
-type SSH struct {
-	Client *ssh.Client
+type SSH interface {
+	ClientSFTP() (*sftp.Client, error)
+	NewSession() (*ssh.Session, error)
 }
 
-// NewSSH ...
-func NewSSH(c *Credentials) (*SSH, error) {
-
+// NewClient ...
+func NewClient(c *Credentials) (SSH, error) {
 	cfg := &ssh.ClientConfig{
 
 		User:            c.User,
@@ -79,12 +68,31 @@ func NewSSH(c *Credentials) (*SSH, error) {
 		return nil, err
 	}
 
-	return &SSH{Client: client}, nil
+	return &sshClient{client}, nil
 }
 
+
+
+// Credentials ...AuthMethod : "key", "password", "keyboard". Port default ":22"
+type Credentials struct {
+	Host           string
+	Port           string
+	AuthMethod     string
+	User           string
+	Password       string
+	PrivateKeyFile string
+	TimeOut        int64
+}
+
+// SSH ...
+type sshClient struct {
+	client *ssh.Client
+}
+
+
 // ClientSFTP ...
-func (s *SSH) ClientSFTP() (*sftp.Client, error) {
-	client, err := sftp.NewClient(s.Client)
+func (s *sshClient) ClientSFTP() (*sftp.Client, error) {
+	client, err := sftp.NewClient(s.client)
 	if err != nil {
 		return nil, err
 	}
@@ -93,14 +101,15 @@ func (s *SSH) ClientSFTP() (*sftp.Client, error) {
 }
 
 // NewSession ...
-func (s *SSH) NewSession() (*ssh.Session, error) {
-	session, err := s.Client.NewSession()
+func (s *sshClient) NewSession() (*ssh.Session, error) {
+	session, err := s.client.NewSession()
 	if err != nil {
 		return nil, err
 	}
 
 	return session, nil
 }
+
 
 // RunCommand ...
 // TODO: дописать выполнение команд с возвратом результатов
